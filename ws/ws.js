@@ -14,8 +14,8 @@ const createNewChat = (uuid, socket) => {
   db.run(
     "INSERT INTO chats (sender,receiver,message,date) VALUES ($sender,$receiver,$message,$date)",
     {
-      $sender: data.sender,
-      $receiver: data.receiver,
+      $sender: data.receiver,
+      $receiver: data.sender,
       $message: data.message,
       $date: data.date,
     },
@@ -58,6 +58,7 @@ const saveMessage = ({ message, uuid }, socket) => {
       }
     }
   );
+  socket.emit("writing");
   db.run(
     "INSERT INTO chats (sender,receiver,message,date) VALUES ($sender,$receiver,$message,$date)",
     {
@@ -70,7 +71,9 @@ const saveMessage = ({ message, uuid }, socket) => {
       if (err) {
         console.log(err);
       } else {
-        socket.emit("new_message", { ...sentMessage, id: this.lastID });
+        setTimeout(() => {
+          socket.emit("new_message", { ...sentMessage, id: this.lastID });
+        }, 2000);
       }
     }
   );
@@ -79,7 +82,7 @@ const saveMessage = ({ message, uuid }, socket) => {
 createWsServer = (server) => {
   const io = new Server(server, {
     cors: {
-      origin: "*",
+      origin: "localhost:5173",
     },
   });
 
